@@ -39,25 +39,21 @@ const handleSendMail = async (val) => {
 };
 
 const verification = asyncHandle(async (req, res) => {
-	const { email } = req.body;
-
-	const verificationCode = Math.round(1000 + Math.random() * 9000);
+	const { id } = req.body;
 
 	try {
-		const data = {
-			from: `"Support EventHub Appplication" <${process.env.USERNAME_EMAIL}>`,
-			to: email,
-			subject: 'Verification email code',
-			text: 'Your code to verification email',
-			html: `<h1>${verificationCode}</h1>`,
-		};
+		const user = await UserModel.findById(id)
+		const accesstoken = await getJsonWebToken(user.email, id)
 
-		await handleSendMail(data);
+		await UserModel.findByIdAndUpdate(id, {isVerify: true})
 
 		res.status(200).json({
 			message: 'Send verification code successfully!!!',
 			data: {
-				code: verificationCode,
+				email: user.email,
+				id: user._id,
+				isVerify: true,
+				accesstoken
 			},
 		});
 	} catch (error) {
@@ -87,12 +83,21 @@ const register = asyncHandle(async (req, res) => {
 
 	await newUser.save();
 
+	const data = {
+		from: `"Verification code" <${process.env.USERNAME_EMAIL}>`,
+		to: email,
+		subject: 'Verification email code',
+		text: 'Your code to verification email',
+		html: `<h1>${1234}</h1>`,
+	};
+ 
 	res.status(200).json({
 		message: 'Register new user successfully',
 		data: {
 			email: newUser.email,
 			id: newUser._id,
-			accesstoken: await getJsonWebToken(email, newUser.id),
+			isVerify: false,
+			verificationCode: 1234
 		},
 	});
 });
