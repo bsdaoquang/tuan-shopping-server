@@ -124,10 +124,8 @@ const login = asyncHandle(async (req, res) => {
 		data: {
 			id: existingUser.id,
 			email: existingUser.email,
-			accesstoken: await getJsonWebToken(email, existingUser.id),
-			fcmTokens: existingUser.fcmTokens ?? [],
-			photo: existingUser.photoUrl ?? '',
-			name: existingUser.name ?? '',
+			accesstoken: await getJsonWebToken(email, existingUser.id),			
+			isVerify: true
 		},
 	});
 });
