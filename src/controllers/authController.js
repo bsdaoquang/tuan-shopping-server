@@ -1,7 +1,7 @@
 /** @format */
 
 const UserModel = require('../models/userModel');
-const bcryp = require('bcrypt');
+const bcrypt = require('bcrypt');
 const asyncHandle = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -191,7 +191,6 @@ const handleLoginWithGoogle = asyncHandle(async (req, res) => {
 				accesstoken: user.accesstoken,
 				id: existingUser._id,
 				email: existingUser.email,
-				fcmTokens: existingUser.fcmTokens,
 				photo: existingUser.photoUrl,
 				name: existingUser.name,
 			};
@@ -205,9 +204,14 @@ const handleLoginWithGoogle = asyncHandle(async (req, res) => {
 			throw new Error('fafsf');
 		}
 	} else {
+
+		const salt = await bcrypt.genSalt(10)
+		const hash = await bcrypt.hash('123456', salt)
+
 		const newUser = new UserModel({
 			email: userInfo.email,
 			fullname: userInfo.name,
+			password: hash,
 			...userInfo,
 		});
 		await newUser.save();
@@ -221,7 +225,6 @@ const handleLoginWithGoogle = asyncHandle(async (req, res) => {
 					accesstoken: user.accesstoken,
 					id: user._id,
 					email: user.email,
-					fcmTokens: user.fcmTokens,
 					photo: user.photoUrl,
 					name: user.name,
 				},
